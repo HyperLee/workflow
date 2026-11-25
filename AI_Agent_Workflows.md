@@ -2,7 +2,7 @@
 
 Spotify 的 Honk 案例聚焦在如何把程式修改交給背景 Agent，並用建置、測試和程式碼審查驗證結果。Uber 的案例聚焦在如何將團隊的工作流程寫成可重用的 Skills，再用實際執行資料和評估持續改善。兩者也帶出討論的核心問題：團隊有哪些工程規範，才能把個人使用 AI 的經驗累積成共用流程？
 
-本文整理自 [chatgpt.md](./chatgpt.md)。發布日期、數據及產品描述沿用原對話的引用，尚未逐項查證。
+本文整理自原始對話，文中的案例資料於 2026-11-25 依官方文章查證。[原始對話](./chatgpt.md) · [官方來源與查證附錄](./AI_Agent_Workflows_Sources.md)
 
 ## 原始問題
 
@@ -16,59 +16,23 @@ Spotify 的 Honk 案例聚焦在如何把程式修改交給背景 Agent，並用
 
 ## Spotify｜Honk 如何在背景完成程式修改
 
-原對話以 Honk 為主軸，整理了 Spotify 的幾項工程工具及用途。
+Fleet Management 是 Spotify 大規模維護程式碼的做法。工程師用 Fleetshift 確定遷移目標、排程與追蹤進度，由 Honk 在背景修改程式。以資料集遷移為例，團隊用 Backstage 的資料血緣和 Codesearch 找出受影響的儲存庫。工程師也可以從 Slack 發起臨時任務，讓背景 Agent 完成修改並回傳 PR。 [Honk Part 1](https://engineering.atspotify.com/2025/11/spotifys-background-coding-agent-part-1) · [Honk Part 4](https://engineering.atspotify.com/2026/4/background-coding-agents-dataset-migrations-honk-part-4) · [Spotify 工程分享](https://engineering.atspotify.com/2026/6/code-with-claude-coding-is-no-longer-the-constraint)
 
-| 工具 | 原對話整理的用途 |
-| --- | --- |
-| Backstage | 提供專案、系統架構及依賴關係等背景資訊 |
-| Fleet Management | 管理大規模軟體維護和自動化變更 |
-| Fleetshift | 分派任務、排程並追蹤進度 |
-| Honk | 在背景執行程式開發與維護任務 |
-| Chirp | 協調多個 Agent 與團隊協作 |
-| Xirp | 提供可搭配不同 AI 廠商的 Agent 開發環境 |
+Honk 可依驗證結果修正再跑。Spotify 在 Part 3 說明，建置、格式與測試等驗證之後，另有 LLM Judge 比對原始指令和差異。開 PR 前若有驗證未通過，系統會回報錯誤並阻止建立 PR。Spotify 也提到會在安全的情況下自動合併，把人工審查留給需要判斷的變更。 [Honk Part 3](https://engineering.atspotify.com/2025/12/feedback-loops-background-coding-agents-part-3) · [Spotify 工程分享](https://engineering.atspotify.com/2026/6/code-with-claude-coding-is-no-longer-the-constraint)
 
-原對話將公開案例簡化為以下工作流程。
-
-1. **提出任務。** 工程師發起功能開發、修正缺陷或系統遷移等任務，Slack 可作為入口之一。
-2. **提供背景與分派工作。** 透過 Backstage 取得專案資訊，再由 Fleetshift 分派及追蹤任務。
-3. **在背景執行。** Honk 使用 Claude Agent SDK 與 Spotify 自製的 Harness，在 Kubernetes 環境中分析程式碼、理解需求、修改程式並執行工具。工程師可以同時交辦多個任務。
-4. **用驗證結果回饋 Agent。** 執行 Build、Lint 和 Test。若驗證失敗，Agent 根據結果修正並重跑。
-5. **送交審查與交付。** 建立 Pull Request，依任務進入人工 Code Review，符合條件時可自動合併，之後接續部署流程。
-
-原對話引述 Spotify 在 2026 年 6 月 3 日分享的數據，並另外提到 Fleet Management 的累積規模。
-
-| 指標 | 原對話引述 |
-| --- | --- |
-| 每週使用 AI 開發工具的工程師 | 99%+ |
-| 認為 AI 提高生產力的工程師 | 94% |
-| Pull Request 頻率增幅 | 76% |
-| 一次後端 Java 遷移耗時 | 3 天 |
-| Fleet Management 累計合併的自動化維護 PR | 超過 250 萬筆，包含傳統自動化 |
-
-### Spotify 文章與延伸資料
-
-| 日期 | 主題 |
-| --- | --- |
-| 2025-11-06 | [Honk Part 1｜背景 AI Coding Agent](https://www.engineering.atspotify.com/2025/11/spotifys-background-coding-agent-part-1) |
-| 2025-11-24 | Honk Part 2｜Context Engineering（上下文工程） |
-| 2025-12-09 | Honk Part 3｜Feedback Loop（回饋迴圈） |
-| 2026-04-22 | Honk Part 4｜大型資料集遷移 |
-| 2026-06-03 | [Coding Is No Longer the Constraint](https://engineering.atspotify.com/2026/06/code-with-claude-coding-is-no-longer-the-constraint) |
-| 2026-08-10 | [Xirp｜擴展 AI Coding Agent 的開發環境](https://portal.spotify.com/blog/introducing-xirp) |
-
-Part 2 和 Part 3 分別回答「Agent 開工前需要哪些專案資訊」和「團隊如何驗證 Agent 的修改」，是原對話建議優先讀的兩篇。[Spotify Engineering 開發者體驗系列](https://engineering.atspotify.com/tag/developer-experience) · [Spotify × Anthropic 技術研討會](https://www.youtube.com/watch?v=fHDGQHr_agg)
+Spotify 於 2026-06-03 公布，超過 99% 的工程師每週使用 AI 開發工具，94% 回報生產力提升，PR 頻率增加 76%。文中舉出一次後端 Java 遷移耗時 3 天。超過 250 萬筆則是 Fleet Management 自導入 Agent 前開始累計的自動化維護 PR 合併數。 [Spotify 工程分享](https://engineering.atspotify.com/2026/6/code-with-claude-coding-is-no-longer-the-constraint)
 
 ## Uber｜如何把團隊流程變成可維護的 Skills
 
-原對話引用 Uber 於 2026 年 11 月 23 日發表的文章。Uber 自 2025 年 10 月從 1 個 Skill 起步，累積至 5,000+ 個內部 Skills，每月跨平台呼叫超過 100 萬次。[How Uber Evals 1 Million Agent Skill Invocations a Month](https://www.uber.com/us/en/blog/optimizing-ubers-agent-skills/)
+Uber 於 2026-11-23 公布，共用 Skills 市集從 2025 年 10 月的 1 個 Skill，在約一年內成長到超過 5,000 個。其跨平台使用資料**單月記錄超過 100 萬次呼叫**。 [Uber 官方文章](https://www.uber.com/us/en/blog/optimizing-ubers-agent-skills/)
 
-在原對話的整理中，Uber 將團隊的工作流程、操作程序與資深員工的經驗寫成 Skills，透過 Git 儲存庫、審查、自動化評估（Evals）和使用數據維護。每個 Skill 的步驟都要說明目標、驗證方式和失敗處理，並指明維護者及如何評估成果是否改善。
-
-Agent 執行時遇到的問題也能回流到評估流程。維護者將失敗案例納入 Evals，據此調整 Skill，再檢查調整後的效果。修正因此可以被團隊重複使用，後續執行同一流程的人也能受益。
+Uber 用 Git 儲存庫管理 Skills 的版本、維護者和審查。團隊先寫 `spec.md`，再由 Skill Workshop 產生 `SKILL.md` 和測試提示。Linter 檢查步驟與錯誤復原說明，Evals 評估 Agent 的產出與執行過程。Agent 遇到問題時可提交結構化的 `papercut` 回報，讓維護者能追查、修正並驗證。 [Uber 官方文章](https://www.uber.com/us/en/blog/optimizing-ubers-agent-skills/)
 
 ## 團隊工程規範如何影響 AI 工作流程
 
-依照原對話的分析，有共同工程規範的團隊通常較容易發展出可重用的 AI 工作流程。Coding Style 先處理命名、格式和註解。共用 Skill 還需要知道專案如何分層、該使用哪套元件、如何建置與測試，以及什麼結果才符合交付條件。
+Spotify 回報，在其程式碼較一致的環境中，Agent 表現較好。在資料集遷移案例中，資料管線框架的差異也增加了撰寫共用指令的難度。這些是 Spotify 在自身環境的觀察。 [Spotify 工程分享](https://engineering.atspotify.com/2026/6/code-with-claude-coding-is-no-longer-the-constraint) · [Honk Part 4](https://engineering.atspotify.com/2026/4/background-coding-agents-dataset-migrations-honk-part-4)
+
+原對話據此討論團隊如何建立可重用的 AI 工作流程。Coding Style 先處理命名、格式和註解。共用 Skill 還需要知道專案如何分層、該使用哪套元件、如何建置與測試，以及什麼結果才符合交付條件。
 
 | 面向 | 有共用工程規範時 | 主要依個人做法時 |
 | --- | --- | --- |
