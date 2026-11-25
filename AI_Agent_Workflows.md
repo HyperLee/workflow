@@ -30,6 +30,18 @@ Uber 於 2026-11-23 公布，共用 Skills 市集從 2025 年 10 月的 1 個 Sk
 
 Uber 用 Git 儲存庫管理 Skills 的版本、維護者和審查。團隊先寫 `spec.md`，再由 Skill Workshop 產生 `SKILL.md` 和測試提示。Linter 檢查步驟與錯誤復原說明，Evals 評估 Agent 的產出與執行過程。Agent 遇到問題時可提交結構化的 `papercut` 回報，讓維護者能追查、修正並驗證。 [Uber 官方文章](https://www.uber.com/us/en/blog/optimizing-ubers-agent-skills/)
 
+## Spotify Honk 與 Uber Agent Skills 的工作流程比較
+
+| 案例 | 流程處理的工作 | 典型流程 |
+| --- | --- | --- |
+| Spotify｜Honk | 讓 Agent 完成並驗證一項程式開發或維護任務 | 接收任務 → 修改程式 → 建置與測試 → 提交 PR |
+| Uber｜Agent Skills | 把團隊的做法封裝成可重用的 Skills，持續評估與維護 | 定義規格 → 建立 Skill → 審查與發布 → 評估執行結果 → 修正 |
+
+Uber 的案例涵蓋兩個層次：
+
+- **Skill 本身是任務流程。** 每個 Skill 封裝一套做法，供 Agent 執行特定任務。例如，建立 PR 的 Skill 可以記錄應執行的步驟，以及如何檢查結果。
+- **管理 Skills 是團隊維護流程。** 維護者負責定義規格、審查與發布，並用 Evals 和實際執行回報找出問題、更新 Skill。Uber 文章主要介紹這一層。 [Uber 官方文章](https://www.uber.com/us/en/blog/optimizing-ubers-agent-skills/)
+
 ## 團隊工程規範如何影響 AI 工作流程
 
 Spotify 回報，在其程式碼較一致的環境中，Agent 表現較好。在資料集遷移案例中，資料管線框架的差異也增加了撰寫共用指令的難度。這些是 Spotify 在自身環境的觀察。 [Spotify 工程分享](https://engineering.atspotify.com/2026/6/code-with-claude-coding-is-no-longer-the-constraint) · [Honk Part 4](https://engineering.atspotify.com/2026/4/background-coding-agents-dataset-migrations-honk-part-4)
